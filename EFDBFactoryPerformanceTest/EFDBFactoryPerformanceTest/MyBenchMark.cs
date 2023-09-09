@@ -20,29 +20,61 @@ namespace EFDBFactoryPerformanceTest
         }
 
         [Benchmark]
-        public void Update_with_get_SaveChange()
+        public bool IsExists_by_full_entity_projection()
         {
             using var dbcontext = factory.CreateDbContext();
-            dbcontext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-            var log = dbcontext.Logs.FirstOrDefault(x => x.Id == 1);
-            log.Message = "Updating from get and save change";
-            log.TimeStamp = DateTime.Now;
-            dbcontext.SaveChanges();
+            var data = dbcontext.Logs.Where(x => x.Id == 5).FirstOrDefault();
+            return data != null;
         }
 
         [Benchmark]
-        public void Update_with_ExecuteUpdate()
+        public bool IsExists_by_any()
         {
             using var dbcontext = factory.CreateDbContext();
-            dbcontext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-            var log = dbcontext.Logs
-                .TagWith("Execute update testing")
-                .Where(d => d.Id == 1)
-                .ExecuteUpdate(x => x
-                .SetProperty(p => p.Message, "Execute update")
-                .SetProperty(p => p.TimeStamp, DateTime.Now)
-                );
+            var isExists = dbcontext.Logs.Any(x => x.Id == 5);
+            return isExists;
         }
+
+        //[Benchmark]
+        //public void Get_by_Parameterized_Query()
+        //{
+        //    int id = 5;
+        //    using var dbcontext = factory.CreateDbContext();
+        //    var data = dbcontext.Logs.Where(x=>x.Id==id).ToList();
+        //}
+
+        //[Benchmark]
+        //public void Get_by_Constant_Query()
+        //{
+        //    using var dbcontext = factory.CreateDbContext();
+        //    var data = dbcontext.Logs.Where(x => x.Id == 5).ToList();
+        //}
+
+
+        //[Benchmark]
+        //public void Update_with_get_SaveChange()
+        //{
+        //    using var dbcontext = factory.CreateDbContext();
+        //    dbcontext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+        //    var log = dbcontext.Logs.FirstOrDefault(x => x.Id == 1);
+        //    log.Message = "Updating from get and save change";
+        //    log.TimeStamp = DateTime.Now;
+        //    dbcontext.SaveChanges();
+        //}
+
+        //[Benchmark]
+        //public void Update_with_ExecuteUpdate()
+        //{
+        //    using var dbcontext = factory.CreateDbContext();
+        //    dbcontext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+        //    var log = dbcontext.Logs
+        //        .TagWith("Execute update testing")
+        //        .Where(d => d.Id == 1)
+        //        .ExecuteUpdate(x => x
+        //        .SetProperty(p => p.Message, "Execute update")
+        //        .SetProperty(p => p.TimeStamp, DateTime.Now)
+        //        );
+        //}
 
         //[Benchmark]
         //public void Get_With_Single_Factory_Instance()
